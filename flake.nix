@@ -48,6 +48,9 @@
             mkdir -p $out
             cp ${./main.typ} main.typ
             cp ${content-typ} content.typ
+            # Page dimensions default to 6in×9in via sys.inputs in main.typ.
+            # For custom sizes, use the dev shell:
+            #   typst compile --input page-width=5in --input page-height=7in main.typ zigman.pdf
             ${pkgs.typst}/bin/typst compile main.typ $out/zigman.pdf
           '';
         }

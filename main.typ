@@ -6,8 +6,8 @@
 )
 
 #set page(
-  width: 6in,
-  height: 9in,
+  width: eval(sys.inputs.at("page-width", default: "6in")),
+  height: eval(sys.inputs.at("page-height", default: "9in")),
   margin: (
     top: 0.6in,
     bottom: 0.7in,
