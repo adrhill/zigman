@@ -35,6 +35,9 @@
 #set par(
   leading: 0.58em,
   justify: true,
+  justification-limits: (
+    tracking: (min: -0.01em, max: 0.02em),
+  ),
 )
 
 // Headings
@@ -70,15 +73,18 @@
 // Captioned code blocks (figures containing code)
 #show figure.where(kind: raw): it => {
   set align(left)
-  block(
-    width: 100%,
-    fill: luma(220),
-    radius: (top: 3pt),
-    inset: (x: 8pt, y: 4pt),
-    below: 0pt,
-    text(weight: "bold", size: 7.5pt, it.caption.body),
-  )
-  it.body
+  block(breakable: false)[
+    #block(
+      width: 100%,
+      fill: luma(220),
+      radius: (top: 3pt),
+      stroke: 0.5pt + luma(210),
+      inset: (x: 8pt, y: 4pt),
+      below: 0pt,
+      {set text(weight: "bold", size: 7.5pt, font: ("DejaVu Sans Mono", "New Computer Modern Mono")); it.caption.body},
+    )
+    #it.body
+  ]
 }
 
 // Code blocks
@@ -89,7 +95,7 @@
     width: 100%,
     fill: luma(245),
     inset: 8pt,
-    radius: 3pt,
+    radius: (bottom: 3pt),
     stroke: 0.5pt + luma(210),
     it,
   )
