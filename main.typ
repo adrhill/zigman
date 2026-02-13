@@ -11,8 +11,8 @@
   margin: (
     top: 0.6in,
     bottom: 0.7in,
-    inside: 0.7in,
-    outside: 0.55in,
+    inside: 0.35in,
+    outside: 0.25in,
   ),
   header: context {
     if counter(page).get().first() > 1 {
@@ -67,9 +67,24 @@
   v(0.15em)
 }
 
+// Captioned code blocks (figures containing code)
+#show figure.where(kind: raw): it => {
+  set align(left)
+  block(
+    width: 100%,
+    fill: luma(220),
+    radius: (top: 3pt),
+    inset: (x: 8pt, y: 4pt),
+    below: 0pt,
+    text(weight: "bold", size: 7.5pt, it.caption.body),
+  )
+  it.body
+}
+
 // Code blocks
 #show raw.where(block: true): it => {
   set text(size: 7.5pt)
+  set par(justify: false)
   block(
     width: 100%,
     fill: luma(245),
@@ -114,9 +129,11 @@
 #align(center + horizon)[
   #text(size: 28pt, weight: "bold")[Zig Language Reference]
   #v(1em)
-  #text(size: 12pt, fill: luma(100))[The Zig Software Foundation]
+  #text(size: 12pt, fill: luma(100))[© Zig Contributors — MIT License]
   #v(0.5em)
-  #text(size: 10pt, fill: luma(140))[Typeset for e-readers by Zigman]
+  #text(size: 10pt, fill: luma(140))[
+    Typeset for e-readers via #link("https://github.com/adrhill/zigman")[`github.com/adrhill/zigman`]
+  ]
 ]
 
 #pagebreak()
