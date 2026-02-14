@@ -6,34 +6,32 @@
 )
 
 #set page(
-  width: eval(sys.inputs.at("page-width", default: "6in")),
-  height: eval(sys.inputs.at("page-height", default: "9in")),
+  width: eval(sys.inputs.at("page-width", default: "4.2in")),
+  height: eval(sys.inputs.at("page-height", default: "5.6in")),
   margin: (
-    top: 0.6in,
-    bottom: 0.7in,
-    inside: 0.35in,
-    outside: 0.25in,
+    x: 0.15in,
+    top: 0.15in,
+    bottom: 0.2in,
   ),
-  header: context {
+  header: [],
+  footer: context {
     if counter(page).get().first() > 1 {
-      set text(size: 8pt, fill: luma(120))
-      emph[Zig Language Reference]
-      h(1fr)
+      set align(center)
+      set text(size: 7.5pt, fill: luma(140))
       counter(page).display()
     }
   },
-  footer: [],
 )
 
 // Body text
 #set text(
-  font: ("New Computer Modern", "Libertinus Serif"),
-  size: 9.5pt,
+  font: ("Literata", "Libertinus Serif"),
+  size: 9pt,
   lang: "en",
 )
 
 #set par(
-  leading: 0.58em,
+  leading: 0.65em,
   justify: true,
   justification-limits: (
     tracking: (min: -0.01em, max: 0.02em),
@@ -43,45 +41,60 @@
 // Headings
 #show heading.where(level: 1): it => {
   pagebreak(weak: true)
-  set text(size: 16pt, weight: "bold")
+  set text(size: 14pt, weight: "bold")
+  v(0.8em)
+  it
   v(0.5em)
+}
+
+#show heading.where(level: 2): it => {
+  set text(size: 11pt, weight: "bold")
+  v(1.0em)
   it
   v(0.4em)
 }
 
-#show heading.where(level: 2): it => {
-  set text(size: 13pt, weight: "bold")
-  v(0.6em)
+#show heading.where(level: 3): it => {
+  set text(size: 9pt, weight: "bold")
+  v(0.8em)
   it
   v(0.3em)
 }
 
-#show heading.where(level: 3): it => {
-  set text(size: 11pt, weight: "bold")
-  v(0.5em)
+#show heading.where(level: 4): it => {
+  set text(size: 8pt, weight: "bold")
+  v(0.6em)
   it
   v(0.2em)
 }
 
-#show heading.where(level: 4): it => {
-  set text(size: 10pt, weight: "bold")
-  v(0.4em)
-  it
-  v(0.15em)
-}
-
 // Captioned code blocks (figures containing code)
+#show figure.where(kind: raw): set block(breakable: true)
 #show figure.where(kind: raw): it => {
   set align(left)
-  block(breakable: false)[
+  set text(font: "Source Code Pro", size: 8pt)
+  set par(justify: false)
+  let caption-text = it.caption.body.children.filter(c => c.has("text")).map(c => c.text).join("")
+  let caption-fill = if caption-text.starts-with("Shell") {
+    rgb("#ccc")
+  } else if caption-text.ends-with(".c") or caption-text.ends-with(".h") {
+    rgb("#a8b9cc")
+  } else {
+    rgb("#fcdba5") // Zig (default)
+  }
+  block(
+    width: 100%,
+    fill: luma(248),
+    breakable: true,
+    clip: true,
+  )[
     #block(
-      width: 100%,
-      fill: luma(220),
-      radius: (top: 3pt),
-      stroke: 0.5pt + luma(210),
-      inset: (x: 8pt, y: 4pt),
+      width:110%,
+      fill: caption-fill,
+      inset: (x: 5pt, y: 4pt),
       below: 0pt,
-      {set text(weight: "bold", size: 7.5pt, font: ("DejaVu Sans Mono", "New Computer Modern Mono")); it.caption.body},
+      sticky: true,
+      {set text(weight: "bold"); it.caption.body},
     )
     #it.body
   ]
@@ -89,24 +102,23 @@
 
 // Code blocks
 #show raw.where(block: true): it => {
-  set text(size: 7.5pt)
+  set text(font: "Source Code Pro", size: 8pt)
   set par(justify: false)
   block(
     width: 100%,
-    fill: luma(245),
-    inset: 8pt,
-    radius: (bottom: 3pt),
-    stroke: 0.5pt + luma(210),
+    fill: luma(250),
+    inset: (x: 5pt, y: 5pt),
+    stroke: 0.5pt + luma(215),
     it,
   )
 }
 
 // Inline code
 #show raw.where(block: false): it => {
-  set text(size: 0.9em)
+  set text(size: 1.05em)
   box(
-    fill: luma(240),
-    inset: (x: 2pt, y: 0pt),
+    fill: luma(243),
+    inset: (x: 2.5pt, y: 0pt),
     outset: (y: 2pt),
     radius: 2pt,
     it,
@@ -121,24 +133,35 @@
 
 // Tables
 #set table(
-  stroke: 0.5pt + luma(180),
-  inset: 6pt,
+  stroke: (x: none, y: 0.5pt + luma(200)),
+  inset: 7pt,
+  fill: (_, y) => if calc.odd(y) { luma(245) },
 )
 
-#show table.cell.where(y: 0): set text(weight: "bold", size: 9pt)
+#show table: set align(center)
+#set table.cell(align: left)
+#show table: set text(size: 7pt)
+#show figure.where(kind: table): set block(breakable: true)
+#show table: it => {
+  set block(breakable: true)
+  show raw: set text(size: 7.25pt)
+  it
+}
+#show table.cell.where(y: 0): set text(weight: "bold", size: 7.5pt)
+#show table.cell.where(y: 0): set table.cell(fill: luma(225))
 
 // Lists
-#set list(indent: 1em, body-indent: 0.4em)
-#set enum(indent: 1em, body-indent: 0.4em)
+#set list(indent: 1em, body-indent: 0.5em)
+#set enum(indent: 1em, body-indent: 0.5em)
 
 // Title page
 #align(center + horizon)[
-  #text(size: 28pt, weight: "bold")[Zig Language Reference]
+  #text(size: 18pt, weight: "bold")[Zig Language Reference]
   #v(1em)
-  #text(size: 12pt, fill: luma(100))[© Zig Contributors — MIT License]
+  #text(size: 9pt, fill: luma(100))[© Zig Contributors — MIT License]
   #v(0.5em)
-  #text(size: 10pt, fill: luma(140))[
-    Typeset for e-readers via #link("https://github.com/adrhill/zigman")[`github.com/adrhill/zigman`]
+  #text(size: 8pt, fill: luma(130))[
+    Typeset for e-readers: #link("https://github.com/adrhill/zigman")[github.com/adrhill/zigman]
   ]
 ]
 

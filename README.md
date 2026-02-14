@@ -12,7 +12,7 @@ Build script uses Nix:
 nix build
 ```
 
-The PDF will be at `./result/zigman.pdf` (default 6"×9").
+The PDF will be at `./result/zigman.pdf` (default 4.2"×5.6", sized for Boox Go Color 7).
 
 ### Custom page sizes
 

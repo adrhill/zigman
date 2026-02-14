@@ -13,9 +13,8 @@
         "x86_64-darwin"
         "aarch64-darwin"
       ];
-    in
-    {
-      packages = forAllSystems (system:
+
+      perSystem = system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
 
@@ -31,7 +30,6 @@
               -f html \
               -t typst \
               --lua-filter=${./filter.lua} \
-              --template=${./template.typ} \
               ${langref-html} \
               -o content-raw.typ
 
@@ -42,8 +40,9 @@
           '';
         in
         {
-          default = pkgs.runCommand "zigman-pdf" {
-            nativeBuildInputs = [ pkgs.typst ];
+          package = pkgs.runCommand "zigman-pdf" {
+            nativeBuildInputs = [ pkgs.typst pkgs.literata pkgs.source-code-pro ];
+            TYPST_FONT_PATHS = "${pkgs.literata}/share/fonts:${pkgs.source-code-pro}/share/fonts";
           } ''
             mkdir -p $out
             cp ${./main.typ} main.typ
@@ -53,22 +52,34 @@
             #   typst compile --input page-width=5in --input page-height=7in main.typ zigman.pdf
             ${pkgs.typst}/bin/typst compile main.typ $out/zigman.pdf
           '';
-        }
-      );
 
-      devShells = forAllSystems (system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
-          default = pkgs.mkShell {
+          devShell = pkgs.mkShell {
             packages = [
               pkgs.pandoc
               pkgs.typst
               pkgs.curl
+              pkgs.literata
+              pkgs.source-code-pro
             ];
+            shellHook = ''
+              export TYPST_FONT_PATHS="${pkgs.literata}/share/fonts:${pkgs.source-code-pro}/share/fonts"
+
+              if [ ! -f content.typ ]; then
+                echo "Copying content.typ from Nix build..."
+                cp ${content-typ} content.typ
+                echo "content.typ ready."
+              fi
+            '';
           };
-        }
-      );
+        };
+    in
+    {
+      packages = forAllSystems (system: {
+        default = (perSystem system).package;
+      });
+
+      devShells = forAllSystems (system: {
+        default = (perSystem system).devShell;
+      });
     };
 }
